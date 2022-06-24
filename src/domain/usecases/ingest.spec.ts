@@ -4,6 +4,9 @@ class FsHandlerStub {
   exists (path: string): boolean {
     return true
   }
+  read (path: string): string[] {
+    return ['any_file.MXF', 'any_file.mp3', 'any_file.wav']
+  }
 }
 
 const makeSut = () => {
@@ -47,5 +50,13 @@ describe('IngestUsecase', () => {
     expect(existsSpy).toBeCalledWith(ingestData.mediaDriver.path)
     expect(response).toEqual(new Error('Mídia não encontrada.'))
   })
-  
+  test('should read media for selected filetype', () => {
+    const { sut } = makeSut()
+    const filterFileTypesSpy = jest.spyOn(sut, 'filterFileTypes')
+    const filesArray = ['any_file.MXF', 'any_file.mp3', 'any_file.wav']
+    sut.exec(ingestData)
+    expect(filterFileTypesSpy).toBeCalled()
+    const filteredFilesArray = sut.filterFileTypes(filesArray)
+    expect(filteredFilesArray).toEqual(['any_file.MXF', 'any_file.wav'])
+  })
 })
