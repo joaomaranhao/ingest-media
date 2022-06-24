@@ -17,7 +17,7 @@ const makeSut = () => {
 
 const ingestData = {
   agenda: 'any_agenda',
-  workstationData: {
+  workstation: {
     name: 'any_name',
     path: 'any_path'
   },
@@ -28,7 +28,7 @@ const ingestData = {
     year: 'any_year'
   },
   backup: true,
-  backupData: {
+  backupDevice: {
     name: 'any_name',
     path: 'any_path'
   },
@@ -42,7 +42,10 @@ describe('IngestUsecase', () => {
   test('should ensure mediaDriver exists', () => {
     const { sut, fsHandlerStub } = makeSut()
     const existsSpy = jest.spyOn(fsHandlerStub, 'exists')
-    sut.exec(ingestData)
+    existsSpy.mockReturnValueOnce(false)
+    const response = sut.exec(ingestData)
     expect(existsSpy).toBeCalledWith(ingestData.mediaDriver.path)
+    expect(response).toEqual(new Error('Mídia não encontrada.'))
   })
+  
 })
