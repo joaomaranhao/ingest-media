@@ -26,7 +26,7 @@ export class FileSystemHandler {
     }
   }
 
-  exists (path: string) {
-    fs.existsSync(path)
+  exists (path: string): boolean {
+    return fs.existsSync(path)
   }
 }
