@@ -3,6 +3,13 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "test": "yarn jest",
+    "test:watch": "yarn jest --watch",
+    "dev": "tsnd ./src/index.ts",
+    "build": "yarn tsc",
+    "start": "node ./dist/index.js"
+  },
   "devDependencies": {
     "@types/readline-sync": "^1.4.4",
     "@typescript-eslint/eslint-plugin": "^5.31.0",
