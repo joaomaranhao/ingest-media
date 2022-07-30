@@ -44,7 +44,7 @@ export class Cli {
           const selectedWorkstation = this.config.destinations.filter(workstation => {
             return workstation.title === workstationTitle
           })
-          const fullDesinationPath = path.join(selectedWorkstation[0].path, 'BRUTOS', agenda.year, agenda.month, agenda.day, agenda.dirName)
+          const fullDesinationPath = path.join(this.configuration.normalizedPath(selectedWorkstation[0].path), agenda.year, agenda.month, agenda.day, agenda.dirName)
           const fullBackupPath = this.config.backup ? path.join(this.config.backup, agenda.year, agenda.month, agenda.day, agenda.dirName) : undefined
           const ingest = new Ingest(this.config.source, ['mxf', 'wav'], fullDesinationPath, this.fileSystem, fullBackupPath)
           ingest.exec()
