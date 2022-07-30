@@ -1,17 +1,23 @@
+import path from 'path'
 import { Readline } from '../utils/readline'
 import chalk from 'chalk'
 import { Config, Destination } from '../interfaces/config'
 import { Configuration } from './configuration'
+import { Agenda } from '../entities/agenda'
+import { Ingest } from './ingest'
+import { FileSystemHandler } from '../utils/filesystem-handler'
 
 export class Cli {
   private readline: Readline
   private configuration: Configuration
   private config: Config
+  private fileSystem: FileSystemHandler
 
-  constructor (readline: Readline, configuration: Configuration, config: Config) {
+  constructor (readline: Readline, configuration: Configuration, config: Config, fileSystem: FileSystemHandler) {
     this.readline = readline
     this.configuration = configuration
     this.config = config
+    this.fileSystem = fileSystem
   }
 
   init () {
@@ -23,6 +29,19 @@ export class Cli {
       }
       if (option === 'Ingest') {
         console.log(chalk.bgCyan('-- Ingest --'))
+        const agendaTitle = this.readline.question('What is the agenda? --> ')
+        const agenda = new Agenda(new Date()).create(agendaTitle)
+        const workstationsTitles = []
+        for (const workstation of this.config.destinations) {
+          workstationsTitles.push(workstation.title)
+        }
+        const workstationTitle = this.readline.prompt(workstationsTitles, 'What is the workstation? --> ')
+        const selectedWorkstation = this.config.destinations.filter(workstation => {
+          return workstation.title === workstationTitle
+        })
+        const fullDesinationPath = path.join(selectedWorkstation[0].title, 'BRUTOS', agenda.year, agenda.month, agenda.day, agenda.dirName)
+        const ingest = new Ingest(this.config.source, ['mxf', 'wav'], fullDesinationPath, this.fileSystem, this.config.backup)
+        ingest.exec()
       }
       if (option === 'Config') {
         this.configureOptions()
