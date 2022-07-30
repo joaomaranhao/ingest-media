@@ -22,16 +22,16 @@ export class Ingest {
       throw new Error('Source not found.')
     }
     if (this.backup) {
-      console.log(chalk.bold.bgGreenBright('Copying to backup...'))
+      console.log(chalk.bgGreen('Copying to backup...'))
       this.ingest(this.sourcePath, this.backup, this.typesOfFiles)
-      console.log(chalk.bold.bgGreenBright('Copying to destination...'))
+      console.log(chalk.bgGreen('Copying to destination...'))
       this.ingest(this.backup, this.destination, this.typesOfFiles)
-      console.log(chalk.bold.bgGreenBright('Finished!'))
+      console.log(chalk.bgGreen('Finished!'))
     }
     if (!this.backup) {
-      console.log(chalk.bold.bgGreenBright('Copying to destination...'))
+      console.log(chalk.bgGreen('Copying to destination...'))
       this.ingest(this.sourcePath, this.destination, this.typesOfFiles)
-      console.log(chalk.bold.bgGreenBright('Finished!'))
+      console.log(chalk.bgGreen('Finished!'))
     }
   }
 

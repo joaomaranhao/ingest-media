@@ -21,27 +21,34 @@ export class Cli {
   }
 
   init () {
-    console.log(chalk.bgCyan('-- Ingest-media --'))
+    console.log(chalk.bgCyan('\n-- Ingest-media --'))
     if (this.config.source && this.config.destinations) {
       const option = this.readline.prompt(['Ingest', 'Config'], 'Choose an option:')
       if (!option) {
-        console.log(chalk.bold.bgYellow('Cancelled.'))
+        console.log(chalk.bgRed('Cancelled.'))
       }
       if (option === 'Ingest') {
         console.log(chalk.bgCyan('-- Ingest --'))
         const agendaTitle = this.readline.question('What is the agenda? --> ')
+        console.log('\nWhat is the workstation?\n')
         const agenda = new Agenda(new Date()).create(agendaTitle)
         const workstationsTitles = []
         for (const workstation of this.config.destinations) {
           workstationsTitles.push(workstation.title)
         }
-        const workstationTitle = this.readline.prompt(workstationsTitles, 'What is the workstation? --> ')
-        const selectedWorkstation = this.config.destinations.filter(workstation => {
-          return workstation.title === workstationTitle
-        })
-        const fullDesinationPath = path.join(selectedWorkstation[0].title, 'BRUTOS', agenda.year, agenda.month, agenda.day, agenda.dirName)
-        const ingest = new Ingest(this.config.source, ['mxf', 'wav'], fullDesinationPath, this.fileSystem, this.config.backup)
-        ingest.exec()
+        const workstationTitle = this.readline.prompt(workstationsTitles, 'Select the workstation? --> ')
+        if (!workstationTitle) {
+          console.log(chalk.bgRed('Cancelled.'))
+        }
+        if (workstationTitle) {
+          const selectedWorkstation = this.config.destinations.filter(workstation => {
+            return workstation.title === workstationTitle
+          })
+          const fullDesinationPath = path.join(selectedWorkstation[0].path, 'BRUTOS', agenda.year, agenda.month, agenda.day, agenda.dirName)
+          const fullBackupPath = this.config.backup ? path.join(this.config.backup, agenda.year, agenda.month, agenda.day, agenda.dirName) : undefined
+          const ingest = new Ingest(this.config.source, ['mxf', 'wav'], fullDesinationPath, this.fileSystem, fullBackupPath)
+          ingest.exec()
+        }
       }
       if (option === 'Config') {
         this.configureOptions()
@@ -58,7 +65,7 @@ export class Cli {
     console.log(chalk.bgCyan('-- Configuration --'))
     const option = this.readline.prompt(['Source', 'Workstations', 'Backup', 'Reset'], 'Choose an option:')
     if (!option) {
-      console.log(chalk.bold.bgYellow('Cancelled.'))
+      console.log(chalk.bgRed('Cancelled.'))
     }
     if (option === 'Source') {
       this.setConfig('source')
@@ -71,7 +78,7 @@ export class Cli {
     }
     if (option === 'Reset') {
       this.configuration.save({})
-      console.log(chalk.bold.bgRed('Configuration reseted.'))
+      console.log(chalk.bgRed('Configuration reseted.'))
     }
   }
 
@@ -82,19 +89,19 @@ export class Cli {
     }
     const option = this.readline.prompt(['Add', 'Remove'], 'Choose an option:')
     if (!option) {
-      console.log(chalk.bold.bgYellow('Cancelled.'))
+      console.log(chalk.bgRed('Cancelled.'))
     }
     if (option === 'Add') {
       const sourcePath = this.readline.question(`What is the ${configItem.toLowerCase()} path? -->  `)
       const normalizedPath = this.configuration.normalizedPath(sourcePath)
       this.config[configItem] = normalizedPath
       this.configuration.save(this.config)
-      console.log(chalk.bold.bgGreen(`${this.capitalizeFirstLetter(configItem)} updated.\n`))
+      console.log(chalk.bgCyan(`${this.capitalizeFirstLetter(configItem)} updated.\n`))
     }
     if (option === 'Remove') {
       this.config[configItem] = undefined
       this.configuration.save(this.config)
-      console.log(chalk.bold.bgGreen(`${this.capitalizeFirstLetter(configItem)} updated.\n`))
+      console.log(chalk.bgCyan(`${this.capitalizeFirstLetter(configItem)} updated.\n`))
     }
     this.init()
   }
@@ -112,7 +119,7 @@ export class Cli {
     }
     const option = this.readline.prompt(['Add', 'Remove'], 'Choose an option:')
     if (!option) {
-      console.log(chalk.bold.bgYellow('Cancelled.'))
+      console.log(chalk.bgRed('Cancelled.'))
     }
     if (option === 'Add') {
       const title = this.readline.question('What is the workstation title? -->  ')
@@ -126,7 +133,7 @@ export class Cli {
       }
       this.config.destinations.push(workstation)
       this.configuration.save(this.config)
-      console.log(chalk.bold.bgGreen('Workstation registered.\n'))
+      console.log(chalk.bgCyan('Workstation registered.\n'))
     }
     if (option === 'Remove') {
       if (!this.config.destinations) {
@@ -148,7 +155,7 @@ export class Cli {
         }
         this.configuration.save(this.config)
       }
-      console.log(chalk.bold.bgGreen('Workstation updated.\n'))
+      console.log(chalk.bgCyan('Workstation updated.\n'))
     }
     this.init()
   }
