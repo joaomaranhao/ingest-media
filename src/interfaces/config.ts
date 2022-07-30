@@ -4,7 +4,8 @@ export type Destination = {
 }
 
 export interface Config {
-  source: string
-  destinations: Destination[]
+  source: string | undefined
+  destinations: Destination[] | undefined
   backup?: string
+  [key: string]: string | undefined | Destination[]
 }

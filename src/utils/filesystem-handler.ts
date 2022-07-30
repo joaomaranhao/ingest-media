@@ -29,4 +29,12 @@ export class FileSystemHandler {
   exists (path: string): boolean {
     return fs.existsSync(path)
   }
+
+  readFile (path: string) {
+    return fs.readFileSync(path, { encoding: 'utf8' })
+  }
+
+  writeFile (file: string, data: string): void {
+    fs.writeFileSync(file, data)
+  }
 }
