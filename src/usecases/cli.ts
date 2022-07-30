@@ -22,7 +22,7 @@ export class Cli {
 
   init () {
     console.log(chalk.bgCyan('\n-- Ingest-media --'))
-    if (this.config.source && this.config.destinations) {
+    if (this.config.source && this.config.destinations && this.config.filesTypes) {
       const option = this.readline.prompt(['Ingest', 'Config'], 'Choose an option:')
       if (!option) {
         console.log(chalk.bgRed('Cancelled.'))
@@ -46,7 +46,7 @@ export class Cli {
           })
           const fullDesinationPath = path.join(this.configuration.normalizedPath(selectedWorkstation[0].path), agenda.year, agenda.month, agenda.day, agenda.dirName)
           const fullBackupPath = this.config.backup ? path.join(this.config.backup, agenda.year, agenda.month, agenda.day, agenda.dirName) : undefined
-          const ingest = new Ingest(this.config.source, ['mxf', 'wav'], fullDesinationPath, this.fileSystem, fullBackupPath)
+          const ingest = new Ingest(this.config.source, this.config.filesTypes, fullDesinationPath, this.fileSystem, fullBackupPath)
           ingest.exec()
         }
       }
@@ -54,16 +54,16 @@ export class Cli {
         this.configureOptions()
       }
     }
-    if (!this.config.source || !this.config.destinations) {
+    if (!this.config.source || !this.config.destinations || !this.config.filesTypes) {
       console.log('You have to configure it first.')
-      console.log('Source and workstation are required.\n')
+      console.log('Source, workstation, and file type are required.\n')
       this.configureOptions()
     }
   }
 
   private configureOptions () {
     console.log(chalk.bgCyan('-- Configuration --'))
-    const option = this.readline.prompt(['Source', 'Workstations', 'Backup', 'Reset'], 'Choose an option:')
+    const option = this.readline.prompt(['Source', 'Workstations', 'Files Types', 'Backup', 'Reset'], 'Choose an option:')
     if (!option) {
       console.log(chalk.bgRed('Cancelled.'))
     }
@@ -72,6 +72,9 @@ export class Cli {
     }
     if (option === 'Workstations') {
       this.setWorkstations()
+    }
+    if (option === 'Files Types') {
+      this.setFilesTypes()
     }
     if (option === 'Backup') {
       this.setConfig('backup')
@@ -156,6 +159,55 @@ export class Cli {
         this.configuration.save(this.config)
       }
       console.log(chalk.bgCyan('Workstation updated.\n'))
+    }
+    this.init()
+  }
+
+  private setFilesTypes () {
+    console.log(chalk.bgCyan('-- Files Types Configuration --'))
+    if (!this.config.filesTypes) {
+      console.log('You do not have any filetype registered yet.')
+    }
+    if (this.config.filesTypes) {
+      console.log('Your current registered files types are: \n')
+      for (const filetype of this.config.filesTypes) {
+        console.log(`${filetype}`)
+      }
+    }
+    const option = this.readline.prompt(['Add', 'Remove'], 'Choose an option:')
+    if (!option) {
+      console.log(chalk.bgRed('Cancelled.'))
+    }
+    if (option === 'Add') {
+      const type = this.readline.question('What is the file type? -->  ')
+      if (!this.config.filesTypes) {
+        this.config.filesTypes = []
+      }
+      this.config.filesTypes.push(type)
+      this.configuration.save(this.config)
+      console.log(chalk.bgCyan('File type registered.\n'))
+    }
+    if (option === 'Remove') {
+      if (!this.config.filesTypes) {
+        console.log('You do not have any file type registered yet.')
+        this.setFilesTypes()
+      }
+      if (this.config.filesTypes) {
+        const titles = []
+        for (const type of this.config.filesTypes) {
+          titles.push(type)
+        }
+        const fileType = this.readline.prompt(titles, 'Which file type do you want to remove?')
+        const fileTypeIndex = this.config.filesTypes.findIndex(type => {
+          return type === fileType
+        })
+        this.config.filesTypes.splice(fileTypeIndex, 1)
+        if (this.config.filesTypes.length === 0) {
+          this.config.filesTypes = undefined
+        }
+        this.configuration.save(this.config)
+      }
+      console.log(chalk.bgCyan('File type updated.\n'))
     }
     this.init()
   }
