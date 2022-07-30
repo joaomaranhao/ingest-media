@@ -1,7 +1,7 @@
 import path from 'path'
 import { Destination } from '../interfaces/config'
 
-export class Configure {
+export class Configuration {
   createDestination (title: string, fullPath: string): Destination {
     return {
       title,

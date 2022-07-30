@@ -1,13 +1,16 @@
 import { Readline } from '../utils/readline'
 import chalk from 'chalk'
 import { Config } from '../interfaces/config'
+import { Configuration } from './configuration'
 
 export class Cli {
   private readline: Readline
+  private configuration: Configuration
   private config: Config | undefined
 
-  constructor (readline: Readline, config?: Config) {
+  constructor (readline: Readline, configure: Configuration, config?: Config) {
     this.readline = readline
+    this.configuration = configure
     this.config = config
   }
 
@@ -16,7 +19,7 @@ export class Cli {
     if (!this.config?.source || !this.config?.destinations) {
       console.log('You have to configure it first.')
       console.log('Source and workstation are required.')
-      this.configure()
+      this.configureOptions()
     }
     if (this.config) {
       const option = this.readline.prompt(['Ingest', 'Config'], 'Choose an option:')
@@ -27,12 +30,12 @@ export class Cli {
         console.log('Ingest')
       }
       if (option === 'Config') {
-        this.configure()
+        this.configureOptions()
       }
     }
   }
 
-  private configure () {
+  private configureOptions () {
     console.log(chalk.bgCyan('Configuration'))
     const option = this.readline.prompt(['Source', 'Workstations', 'Backup', 'Reset'], 'Choose an option:')
     if (!option) {
@@ -59,7 +62,9 @@ export class Cli {
       console.log(chalk.bold.bgYellow('Cancelled.'))
     }
     if (option === 'Add') {
-      console.log('Add')
+      const sourcePath = this.readline.question('What is the source path? -->  ')
+      const normalizedPath = this.configuration.createNormalizedPath(sourcePath)
+      console.log(normalizedPath)
     }
     if (option === 'Remove') {
       console.log('Remove')
