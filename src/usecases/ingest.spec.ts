@@ -44,4 +44,19 @@ describe('Ingest', () => {
     expect(makeDirSpy).toHaveBeenCalledTimes(1)
     expect(copyFiles).toHaveBeenCalledTimes(1)
   })
+
+  test('should call ingest two times if backup is provided', () => {
+    const sourcePath = 'any_path'
+    const typesOfFiles = ['any', 'type']
+    const destination = 'any_path'
+    const backup = 'any_path'
+    const { sut, fileSystemHandlerStub } = makeSut(sourcePath, typesOfFiles, destination, backup)
+    const readDirSpy = jest.spyOn(fileSystemHandlerStub, 'readDir')
+    const makeDirSpy = jest.spyOn(fileSystemHandlerStub, 'makeDir')
+    const copyFiles = jest.spyOn(fileSystemHandlerStub, 'copyFiles')
+    sut.exec()
+    expect(readDirSpy).toHaveBeenCalledTimes(2)
+    expect(makeDirSpy).toHaveBeenCalledTimes(2)
+    expect(copyFiles).toHaveBeenCalledTimes(2)
+  })
 })
