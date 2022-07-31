@@ -1,7 +1,8 @@
 import fs from 'fs'
 import path from 'path'
+import { IFileSystemHandler } from '../interfaces/ifilesystem-handler'
 
-export class FileSystemHandler {
+export class FileSystemHandler implements IFileSystemHandler {
   readDir (path: string, filesTypes: string[]): string[] {
     const files = fs.readdirSync(path, { encoding: 'utf-8' })
     const filteredFiles = []
@@ -30,7 +31,7 @@ export class FileSystemHandler {
     return fs.existsSync(path)
   }
 
-  readFile (path: string) {
+  readFile (path: string): string {
     return fs.readFileSync(path, { encoding: 'utf8' })
   }
 
